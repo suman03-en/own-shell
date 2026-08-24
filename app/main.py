@@ -49,7 +49,6 @@ def main():
                 print(f"{command_name}: not found")
 
         else:
-            print(check_executable(command_type))
             if found := check_executable(command_type):
                 try:
                     subprocess.run(parts)
