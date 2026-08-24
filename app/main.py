@@ -52,7 +52,7 @@ def main():
             print(check_executable(command_type))
             if found := check_executable(command_type):
                 try:
-                    subprocess.run([found] + parts[1:])
+                    subprocess.run(parts)
                 except Exception as e:
                     print(f"Error executing {command_type}: {e}")
             print(f"{command_type}: command not found")
