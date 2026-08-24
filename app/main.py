@@ -15,7 +15,7 @@ def main():
             if command.split()[1] in BUILTINS:
                 print(f"{command.split()[1]} is a shell builtin")
             else:
-                sys.stdout.write(f"{command.split()[1]}: command not found\n")
+                sys.stdout.write(f"{command.split()[1]}: not found\n")
         else:
             sys.stdout.write(f"{command}: command not found\n")
 
