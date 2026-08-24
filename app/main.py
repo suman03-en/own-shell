@@ -1,6 +1,16 @@
 import sys
 import os
+import subprocess
 
+def check_executable(command_name):
+    paths = os.environ.get("PATH", "").split(os.pathsep)
+    for path in paths:
+        file_path = os.path.join(path, command_name)
+
+        if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
+            return file_path
+    return None
+    
 
 def main():
     BUILTINS = ["echo", "exit", "type"]
@@ -32,25 +42,23 @@ def main():
                 print(f"{command_name} is a shell builtin")
                 continue
 
-            found = None
-
-            paths = os.environ.get("PATH", "").split(os.pathsep)
-
-            for path in paths:
-                file_path = os.path.join(path, command_name)
-
-                if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
-                    found = file_path
-                    break
-
+            found = check_executable(command_name)
             if found:
                 print(f"{command_name} is {found}")
             else:
                 print(f"{command_name}: not found")
 
         else:
+            print(check_executable(command_type))
+            if found := check_executable(command_type):
+                try:
+                    subprocess.run([found] + parts[1:])
+                except Exception as e:
+                    print(f"Error executing {command_type}: {e}")
             print(f"{command_type}: command not found")
 
 
+
 if __name__ == "__main__":
+    print(os.environ.get("PATH", ""))
     main()
