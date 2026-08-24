@@ -6,37 +6,50 @@ def main():
     BUILTINS = ["echo", "exit", "type"]
 
     while True:
-        found = None
         sys.stdout.write("$ ")
+
         command = input()
-        command_type = command.split()[0]
+        parts = command.split()
+
+        if not parts:
+            continue
+
+        command_type = parts[0]
+
         if command_type == "exit":
             break
+
         elif command_type == "echo":
-            print(" ".join(command.split()[1:]))
+            print(" ".join(parts[1:]))
 
         elif command_type == "type":
-            if command.split()[1] in BUILTINS:
-                print(f"{command.split()[1]} is a shell builtin")
-            else:
-                paths = os.environ.get("PATH").split(os.pathsep)
-                for path in paths:
-                    if found:
-                        break
-                    files = os.listdir(path)
-                    for file in files:
-                        file_path = os.path.join(path, file)
-                        file_name = file.rsplit(".")[0]
-                        if file_name == command.split()[1] and os.access(file_path, os.X_OK): 
-                            found = file_path
-                            break     
-                if found:
-                    sys.stdout.write(f"{command.split()[1]} is {found}\n")
-                else:
-                    sys.stdout.write(f"{command.split()[1]}: not found\n")
-        else:
-            sys.stdout.write(f"{command}: command not found\n")
+            if len(parts) < 2:
+                continue
 
+            command_name = parts[1]
+
+            if command_name in BUILTINS:
+                print(f"{command_name} is a shell builtin")
+                continue
+
+            found = None
+
+            paths = os.environ.get("PATH", "").split(os.pathsep)
+
+            for path in paths:
+                file_path = os.path.join(path, command_name)
+
+                if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
+                    found = file_path
+                    break
+
+            if found:
+                print(f"{command_name} is {found}")
+            else:
+                print(f"{command_name}: not found")
+
+        else:
+            print(f"{command_type}: command not found")
 
 
 if __name__ == "__main__":
