@@ -10,7 +10,8 @@ def main():
             break
         if command.split()[0] == "echo":
             print(" ".join(command.split()[1:]))
-        # sys.stdout.write(f"{command}: command not found\n")
+        else:
+            sys.stdout.write(f"{command}: command not found\n")
 
 
 
