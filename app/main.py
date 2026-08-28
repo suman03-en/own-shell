@@ -16,7 +16,7 @@ def check_args(*args):
     if len(args) < 1:
         return
     #assuming it recevies the single commands, but for other compatabilit arguments is *args
-    if args[0].startswith('\\'):
+    if args[0].startswith('/') or args[0].startswith('\\'):
         return True
     
 
