@@ -2,6 +2,13 @@ import sys
 import os
 import subprocess
 
+def parse_command(command: str):
+    """
+    returns the command name and a list of arguments from the given command string
+    """
+    parts = command.split()
+    return parts[0], parts[1:]
+
 def check_executable(command_name):
     paths = os.environ.get("PATH", "").split(os.pathsep)
     for path in paths:
@@ -10,50 +17,56 @@ def check_executable(command_name):
         if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
             return file_path
     return None
+
+def echo(*args):
+    print(f'{" ".join(args)}')
+
+def exit(*args):
+    sys.exit(0)
+
+def type_cmd(*args):
+    if len(args) < 1:
+        return
+    for arg in args:
+        if arg in BUILTINS:
+            print(f"{arg} is a shell builtin")
+        else:
+            found_path = check_executable(arg)
+            if found_path:
+                print(f"{arg} is {found_path}")
+            else:
+                print(f"{arg}: not found")
+
+def execute_program(command_name, args):
+    if found_path := check_executable(command_name):
+        subprocess.run([command_name] + args)
+    else:
+        print(f"{command_name}: command not found")
     
 
+BUILTINS = {
+    "exit": exit,
+    "type": type_cmd,
+    "echo": echo
+}
 def main():
-    BUILTINS = ["echo", "exit", "type"]
 
     while True:
         sys.stdout.write("$ ")
 
         command = input()
-        parts = command.split()
+        command_name, args = parse_command(command)
 
-        if not parts:
+        if not command_name:
             continue
 
-        command_type = parts[0]
-
-        if command_type == "exit":
-            break
-
-        elif command_type == "echo":
-            print(" ".join(parts[1:]))
-
-        elif command_type == "type":
-            if len(parts) < 2:
-                continue
-
-            command_name = parts[1]
-
-            if command_name in BUILTINS:
-                print(f"{command_name} is a shell builtin")
-                continue
-
-            found = check_executable(command_name)
-            if found:
-                print(f"{command_name} is {found}")
-            else:
-                print(f"{command_name}: not found")
-
+        if command_name in BUILTINS:
+            BUILTINS[command_name](*args)
+            
         else:
-            if found := check_executable(command_type):
-                subprocess.run(parts)
+            execute_program(command_name, args)
 
-            else:
-                print(f"{command_type}: command not found")
+            
 
 
 
