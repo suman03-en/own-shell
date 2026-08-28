@@ -9,6 +9,17 @@ def parse_command(command: str):
     parts = command.split()
     return parts[0], parts[1:]
 
+def check_args(*args):
+    """
+    Check what args starts with eg /, ./
+    """
+    if len(args) < 1:
+        return
+    #assuming it recevies the single commands, but for other compatabilit arguments is *args
+    if args[0].startswith('\\'):
+        return True
+    
+
 def check_executable(command_name):
     paths = os.environ.get("PATH", "").split(os.pathsep)
     for path in paths:
@@ -49,11 +60,22 @@ def pwd(*args):
         return
     print(os.getcwd()) 
 
+def cd(*args):
+    if check_args(*args):
+        try:
+            os.chdir(args[0])
+        except FileNotFoundError as e:
+            print(f"cd: {args[0]}: No such file or directory")
+    else:
+        return
+
+# all bultins commands
 BUILTINS = {
     "exit": exit,
     "type": type_cmd,
     "echo": echo,
     "pwd": pwd,
+    "cd": cd
 }
 
 def main():
