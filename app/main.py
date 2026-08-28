@@ -18,6 +18,12 @@ def check_executable(command_name):
             return file_path
     return None
 
+def execute_program(command_name, args):
+    if found_path := check_executable(command_name):
+        subprocess.run([command_name] + args)
+    else:
+        print(f"{command_name}: command not found")
+
 def echo(*args):
     print(f'{" ".join(args)}')
 
@@ -37,18 +43,19 @@ def type_cmd(*args):
             else:
                 print(f"{arg}: not found")
 
-def execute_program(command_name, args):
-    if found_path := check_executable(command_name):
-        subprocess.run([command_name] + args)
-    else:
-        print(f"{command_name}: command not found")
-    
+def pwd(*args):
+    if len(args) >= 1:
+        print("Invalid commands, expected 0 args")
+        return
+    print(os.getcwd()) 
 
 BUILTINS = {
     "exit": exit,
     "type": type_cmd,
-    "echo": echo
+    "echo": echo,
+    "pwd": pwd,
 }
+
 def main():
 
     while True:
