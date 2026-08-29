@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+from turtle import clear
 
 def parse_command(command: str):
     """
@@ -9,16 +10,6 @@ def parse_command(command: str):
     parts = command.split()
     return parts[0], parts[1:]
 
-def check_args(*args):
-    """
-    Check what args starts with eg /, ./
-    """
-    if len(args) < 1:
-        return
-    #assuming it recevies the single commands, but for other compatabilit arguments is *args
-    if args[0].startswith('/') or args[0].startswith('\\'):
-        return True
-    
 
 def check_executable(command_name):
     paths = os.environ.get("PATH", "").split(os.pathsep)
@@ -61,13 +52,22 @@ def pwd(*args):
     print(os.getcwd()) 
 
 def cd(*args):
-    if check_args(*args):
-        try:
-            os.chdir(args[0])
-        except FileNotFoundError as e:
-            print(f"cd: {args[0]}: No such file or directory")
-    else:
+    if not args:
+        return 
+    if len(args) > 1:
+        print("Invalid commands, expected 1 arg")
         return
+    try:
+        os.chdir(args[0])
+    except FileNotFoundError as e:
+        print(f"cd: {args[0]}: No such file or directory")
+
+def clear_screen(*args):
+    if len(args) >= 1:
+        print("Invalid commands, expected 0 args")
+        return
+    command = "cls" if os.name == "nt" else "clear"
+    subprocess.run(command, shell=True)
 
 # all bultins commands
 BUILTINS = {
@@ -75,11 +75,15 @@ BUILTINS = {
     "type": type_cmd,
     "echo": echo,
     "pwd": pwd,
-    "cd": cd
+    "cd": cd,
+    "clear": clear_screen
 }
 
 def main():
 
+    clear_screen() # clear the screen when the shell starts
+    sys.stdout.write("Welcome to Suman Shell!\n")
+    
     while True:
         sys.stdout.write("$ ")
 
@@ -94,9 +98,6 @@ def main():
             
         else:
             execute_program(command_name, args)
-
-            
-
 
 
 if __name__ == "__main__":
