@@ -56,10 +56,18 @@ def cd(*args):
     if len(args) > 1:
         print("Invalid commands, expected 1 arg")
         return
+    
+    dir_path = args[0]
+
+    if args[0] == "~":
+        # dir_path = os.environ.get("HOME") # this works for linux and macOS, for windows it will return None, window uses USERPROFILE instead
+        dir_path = os.path.expanduser("~") # this works for all platforms
     try:
-        os.chdir(args[0])
+        os.chdir(dir_path)
     except FileNotFoundError as e:
         print(f"cd: {args[0]}: No such file or directory")
+    except Exception as e:
+        print(f"cd: {args[0]}: {str(e)}")
 
 def clear_screen(*args):
     if len(args) >= 1:
