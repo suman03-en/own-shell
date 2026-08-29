@@ -80,8 +80,8 @@ BUILTINS = {
 
 def main():
 
-    clear_screen() # clear the screen when the shell starts
-    sys.stdout.write("Welcome to Suman Shell!\n")
+    # clear_screen() # clear the screen when the shell starts
+    # sys.stdout.write("Welcome to Suman Shell!\n")
 
     while True:
         sys.stdout.write("$ ")
