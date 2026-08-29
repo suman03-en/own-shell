@@ -1,7 +1,6 @@
 import sys
 import os
 import subprocess
-from turtle import clear
 
 def parse_command(command: str):
     """
@@ -83,7 +82,7 @@ def main():
 
     clear_screen() # clear the screen when the shell starts
     sys.stdout.write("Welcome to Suman Shell!\n")
-    
+
     while True:
         sys.stdout.write("$ ")
 
