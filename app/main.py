@@ -151,7 +151,9 @@ def main():
     # sys.stdout.write("Welcome to Suman Shell!\n")
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
+    
     # im using pyreadline3 on windows, it doesnot support set_completion_display_matches_hook, so i have to check if it exists before calling it
+    # codecrafters-shell-python is designed to work on both windows and linux, so i have to check if it exists before calling it
     if hasattr(readline, "set_completion_display_matches_hook"):
         readline.set_completion_display_matches_hook(display_matches)
 
