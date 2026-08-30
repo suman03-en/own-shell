@@ -139,12 +139,21 @@ BUILTINS_CMD = {
     "cls": clear_screen
 }
 
+def display_matches(substitution, matches, longest_match_length):
+    print()
+    print("  ".join(sorted(matches)))
+    print("$ ", end="")
+    print(substitution, end="", flush=True)
+
 def main():
 
     # clear_screen() # clear the screen when the shell starts
     # sys.stdout.write("Welcome to Suman Shell!\n")
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
+    # im using pyreadline3 on windows, it doesnot support set_completion_display_matches_hook, so i have to check if it exists before calling it
+    if hasattr(readline, "set_completion_display_matches_hook"):
+        readline.set_completion_display_matches_hook(display_matches)
 
     while True:
         sys.stdout.write("$ ")
