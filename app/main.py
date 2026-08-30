@@ -45,6 +45,7 @@ def completer(text, state):
         for file in executable_files:
             if file.startswith(text) and file not in matches:
                 matches.append(file)
+        matches.sort()
         completer.matches = matches
     try:
         if len(completer.matches) == 1:
