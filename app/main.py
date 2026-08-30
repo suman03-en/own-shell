@@ -1,13 +1,29 @@
 import sys
 import os
 import subprocess
+import readline
+
+def completer(text, state):
+    """this function is used to provide tab completion"""
+    if state == 0:
+        matches = [c for c in BUILTINS_CMD if c.startswith(text)]
+        completer.matches = matches
+    try:
+        if len(completer.matches) == 1:
+            return completer.matches[state] + " "
+        return completer.matches[state]
+    except IndexError:
+        return None
 
 def parse_command(command: str):
     """
     returns the command name and a list of arguments from the given command string
     """
     parts = command.split()
-    return parts[0], parts[1:]
+    try:
+        return parts[0], parts[1:]
+    except IndexError:
+        return parts[0]
 
 
 def check_executable(command_name):
@@ -35,7 +51,7 @@ def type_cmd(*args):
     if len(args) < 1:
         return
     for arg in args:
-        if arg in BUILTINS:
+        if arg in BUILTINS_CMD:
             print(f"{arg} is a shell builtin")
         else:
             found_path = check_executable(arg)
@@ -77,7 +93,7 @@ def clear_screen(*args):
     subprocess.run(command, shell=True)
 
 # all bultins commands
-BUILTINS = {
+BUILTINS_CMD = {
     "exit": exit,
     "type": type_cmd,
     "echo": echo,
@@ -90,6 +106,8 @@ def main():
 
     # clear_screen() # clear the screen when the shell starts
     # sys.stdout.write("Welcome to Suman Shell!\n")
+    readline.set_completer(completer)
+    readline.parse_and_bind("tab: complete")
 
     while True:
         sys.stdout.write("$ ")
@@ -100,8 +118,8 @@ def main():
         if not command_name:
             continue
 
-        if command_name in BUILTINS:
-            BUILTINS[command_name](*args)
+        if command_name in BUILTINS_CMD:
+            BUILTINS_CMD[command_name](*args)
             
         else:
             execute_program(command_name, args)
