@@ -3,10 +3,48 @@ import os
 import subprocess
 import readline
 
+def get_path(*, all_files=False, only_exec=False):
+    """
+    Return PATH directories or files contained in those directories.
+
+    Args:
+        all_files: If True, return files inside PATH directories.
+                   If False, return PATH directories.
+        only_exec: If True, return only executable files.
+                   Requires all_files=True.
+    """
+    paths = os.environ.get("PATH", "").split(os.pathsep)
+
+    if not all_files:
+        return paths
+    
+    files = []
+
+    for path in paths:
+        if not os.path.isdir(path):
+            continue
+
+        for file in os.listdir(path):
+            file_path = os.path.join(path, file)
+
+            if not os.path.isfile(file_path):
+                continue
+
+            if only_exec and not os.access(file_path, os.X_OK):
+                continue
+
+            files.append(file)
+    
+    return files
+    
 def completer(text, state):
     """this function is used to provide tab completion"""
     if state == 0:
         matches = [c for c in BUILTINS_CMD if c.startswith(text)]
+        executable_files = get_path(all_files=True, only_exec=True)
+        for file in executable_files:
+            if file.startswith(text) and file not in matches:
+                matches.append(file)
         completer.matches = matches
     try:
         if len(completer.matches) == 1:
@@ -20,14 +58,14 @@ def parse_command(command: str):
     returns the command name and a list of arguments from the given command string
     """
     parts = command.split()
-    try:
-        return parts[0], parts[1:]
-    except IndexError:
-        return parts[0]
+    if not parts:
+        return None, []
+    return parts[0], parts[1:]
 
 
 def check_executable(command_name):
-    paths = os.environ.get("PATH", "").split(os.pathsep)
+    """checks if command_name is executable"""
+    paths = get_path(all_files=False)
     for path in paths:
         file_path = os.path.join(path, command_name)
 
@@ -37,7 +75,7 @@ def check_executable(command_name):
 
 def execute_program(command_name, args):
     if found_path := check_executable(command_name):
-        subprocess.run([command_name] + args)
+        subprocess.run([found_path] + args)
     else:
         print(f"{command_name}: command not found")
 
@@ -86,9 +124,6 @@ def cd(*args):
         print(f"cd: {args[0]}: {str(e)}")
 
 def clear_screen(*args):
-    if len(args) >= 1:
-        print("Invalid commands, expected 0 args")
-        return
     command = "cls" if os.name == "nt" else "clear"
     subprocess.run(command, shell=True)
 
@@ -99,7 +134,8 @@ BUILTINS_CMD = {
     "echo": echo,
     "pwd": pwd,
     "cd": cd,
-    "clear": clear_screen
+    "clear": clear_screen,
+    "cls": clear_screen
 }
 
 def main():
@@ -115,7 +151,7 @@ def main():
         command = input()
         command_name, args = parse_command(command)
 
-        if not command_name:
+        if command_name is None:
             continue
 
         if command_name in BUILTINS_CMD:
