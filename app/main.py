@@ -75,7 +75,7 @@ def check_executable(command_name):
 
 def execute_program(command_name, args):
     if found_path := check_executable(command_name):
-        subprocess.run([found_path] + args)
+        subprocess.run([command_name] + args)
     else:
         print(f"{command_name}: command not found")
 
