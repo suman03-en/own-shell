@@ -45,10 +45,15 @@ def file_completor(text):
     Returns:
         list of files in the current working directory that start with text
     """
-    cwd = os.getcwd()
+    # Normalize both separators to '/'
+    normalized = text.replace("\\", "/")
 
-    # Separate directory part from filename part
-    directory, prefix = os.path.split(text)
+    if "/" in normalized:
+        directory, prefix = normalized.rsplit("/", 1)
+    else:
+        directory, prefix = "", normalized
+
+    cwd = os.getcwd()
     search_dir = os.path.join(cwd, directory)
     try:
         files = os.listdir(search_dir)
