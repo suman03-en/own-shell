@@ -106,6 +106,8 @@ def completer(text, state):
         completer.matches = matches
     try:
         if len(completer.matches) == 1:
+            if completer.matches[state].endswith("/") or completer.matches[state].endswith("\\"):
+                return completer.matches[state]
             return completer.matches[state] + " "
         return completer.matches[state]
     except IndexError:
