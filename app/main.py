@@ -1,3 +1,4 @@
+from importlib.resources import files
 import sys
 import os
 import subprocess
@@ -36,15 +37,56 @@ def get_path(*, all_files=False, only_exec=False):
             files.append(file)
     
     return files
+
+def file_completor(text):
+    """
+    Args:
+        text: args to complete
+    Returns:
+        list of files in the current working directory that start with text
+    """
+    cwd = os.getcwd()
+
+    # Separate directory part from filename part
+    directory, prefix = os.path.split(text)
+    search_dir = os.path.join(cwd, directory)
+    try:
+        files = os.listdir(search_dir)
+    except (FileNotFoundError, NotADirectoryError, PermissionError):
+        return []
     
+    matches = [f for f in files if f.startswith(prefix)]
+    return matches
+
+def command_completor(text):
+    """
+    Args:
+        text: command to complete
+    Returns:
+        list of commands that start with text
+    """
+    matches = [c for c in BUILTINS_CMD if c.startswith(text)]
+    executable_files = get_path(all_files=True, only_exec=True)
+    for file in executable_files:
+        if file.startswith(text) and file not in matches:
+            matches.append(file)
+    return matches
+
 def completer(text, state):
-    """this function is used to provide tab completion"""
+    """
+    this function is used to provide tab completion.
+    args:
+        text: the current word to complete
+        state: an integer that indicates which match to return
+    """
     if state == 0:
-        matches = [c for c in BUILTINS_CMD if c.startswith(text)]
-        executable_files = get_path(all_files=True, only_exec=True)
-        for file in executable_files:
-            if file.startswith(text) and file not in matches:
-                matches.append(file)
+        line_buffer = readline.get_line_buffer() # get the current line buffer, becoze text is only the current word and to know command and arg we need the whole line buffer
+        parts = line_buffer.split(" ", 1)
+        if len(parts) > 1:
+            args_text = parts[1]
+            matches = file_completor(args_text)
+        else:
+            matches = command_completor(text)
         matches.sort()
         completer.matches = matches
     try:
@@ -174,4 +216,5 @@ def main():
 
 
 if __name__ == "__main__":
+    # file_completor("a")
     main()
