@@ -60,7 +60,17 @@ def file_completor(text):
     except (FileNotFoundError, NotADirectoryError, PermissionError):
         return []
     
-    matches = [f for f in files if f.startswith(prefix)]
+    matches = []
+    for file in files:
+        if not file.startswith(prefix):
+            continue
+
+        file_path = os.path.join(search_dir, file)
+
+        if os.path.isdir(file_path):
+            matches.append(file + "\\" if os.name == "nt" else file + "/")
+        else:
+            matches.append(file)
     return matches
 
 def command_completor(text):
